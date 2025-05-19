@@ -266,63 +266,68 @@
 
   emailjs.init("oJ1ADi8Z2FU6Pw10i"); // Asegúrate que este sea tu Public Key
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    btnEnviar.disabled = true;
-    btnEnviar.textContent = 'Generando PDF...';
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = 'Generando PDF...';
 
-    const nombre = form.nombre.value.trim();
-    const correo = form.correo.value.trim();
-    const telefono = form.telefono.value.trim();
-    const foto = fotoInput.value;
-    const firma = firmaInput.value;
+  const nombre = form.nombre.value.trim();
+  const correo = form.correo.value.trim();
+  const telefono = form.telefono.value.trim();
+  const foto = fotoInput.value;
+  const firma = firmaInput.value;
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(14);
-    doc.text(`Folio: ${folioGlobal}`, 10, 10);
-    doc.text(`Fecha: ${fechaGlobal}`, 10, 20);
-    doc.text(`Nombre: ${nombre}`, 10, 30);
-    doc.text(`Correo: ${correo}`, 10, 40);
-    doc.text(`Teléfono: ${telefono}`, 10, 50);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text(`Folio: ${folioGlobal}`, 10, 10);
+  doc.text(`Fecha: ${fechaGlobal}`, 10, 20);
+  doc.text(`Nombre: ${nombre}`, 10, 30);
+  doc.text(`Correo: ${correo}`, 10, 40);
+  doc.text(`Teléfono: ${telefono}`, 10, 50);
 
-    if (foto) {
-      doc.text("Foto:", 10, 60);
-      doc.addImage(foto, 'PNG', 10, 65, 60, 40);
-    }
+  if (foto) {
+    doc.text("Foto:", 10, 60);
+    doc.addImage(foto, 'PNG', 10, 65, 60, 40);
+  }
 
-    if (firma) {
-      doc.text("Firma:", 10, 110);
-      doc.addImage(firma, 'PNG', 10, 115, 60, 40);
-    }
+  if (firma) {
+    doc.text("Firma:", 10, 110);
+    doc.addImage(firma, 'PNG', 10, 115, 60, 40);
+  }
 
-    const pdfBlob = doc.output("blob");
-    const reader = new FileReader();
-    reader.readAsDataURL(pdfBlob);
-    reader.onloadend = async function () {
-      const base64pdf = reader.result.split(',')[1];
+  // DESCARGA LOCAL AUTOMÁTICA
+  doc.save(`Comprobante_${folioGlobal}.pdf`);
 
-      const emailParams = {
-        to_email: correo,
-        from_name: "Prueba de Entrega",
-        message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`,
-        attachment_base64: base64pdf,
-        filename: `Comprobante_${folioGlobal}.pdf`
-      };
+  // Convertir PDF a base64 para enviar por email
+  const pdfBlob = doc.output("blob");
+  const reader = new FileReader();
+  reader.readAsDataURL(pdfBlob);
+  reader.onloadend = async function () {
+    const base64pdf = reader.result.split(',')[1];
 
-      try {
-        await emailjs.send("service_7kc7w6j", "plantilla_ysa7l2s", emailParams);
-        alert("Formulario enviado correctamente. Revisa tu correo.");
-        location.reload();
-      } catch (error) {
-        console.error("Error al enviar el correo", error);
-        alert("Error al enviar el correo.");
-      } finally {
-        btnEnviar.disabled = false;
-        btnEnviar.textContent = 'Confirmar y Enviar';
-      }
+    const emailParams = {
+      to_email: correo,
+      from_name: "Prueba de Entrega",
+      message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`,
+      attachment_base64: base64pdf,
+      filename: `Comprobante_${folioGlobal}.pdf`
     };
-  });
+
+    try {
+      await emailjs.send("service_7kc7w6j", "plantilla_ysa7l2s", emailParams);
+      alert("Formulario enviado correctamente. Revisa tu correo.");
+      location.reload();
+    } catch (error) {
+      console.error("Error al enviar el correo", error);
+      alert("Error al enviar el correo.");
+    } finally {
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Confirmar y Enviar';
+    }
+  };
+});
+
 </script>
 </body>
 </html>
