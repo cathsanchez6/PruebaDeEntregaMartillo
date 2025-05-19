@@ -135,7 +135,7 @@
   </div>
 
 <script>
- const scriptURL = 'https://script.google.com/macros/s/AKfycbzhVJrUxCZTS5Eho0EmjbV-kY91Q9maXzN8lHqQhhR6Tkz7BRZQn2M0OP4rShOek6kcuQ/exec';
+ const scriptURL = 'https://script.google.com/macros/s/AKfycbztJQ6cbG4o-JVeC5Jb7QA4ZnlzHpa5lRq_z53qouDL2CUjud9gyhnNKrlZAomDyUUZVg/exec';
   const form = document.getElementById('formulario');
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
@@ -296,7 +296,10 @@ function iniciarCamara() {
 
     fetch(scriptURL, {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
       })
       .then(res => res.json())
       .then(data => {
