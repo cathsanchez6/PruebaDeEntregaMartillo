@@ -303,6 +303,7 @@ form.addEventListener('submit', async (e) => {
   const pdfBlob = doc.output("blob");
   const reader = new FileReader();
   reader.readAsDataURL(pdfBlob);
+
   reader.onloadend = async function () {
     const base64pdf = reader.result.split(',')[1];
 
@@ -316,20 +317,18 @@ form.addEventListener('submit', async (e) => {
       nombre: nombre // Nombre del cliente
     };
 
-
     try {
       console.log(emailParams);
-      emailjs.send("servicio_7kc7w6j", "plantilla_ymtwuhd", emailParams)
-      .then((response) => {
-        console.log("Correo enviado con éxito:", response);
-        alert("Formulario enviado correctamente. Revisa tu correo.");
-        location.reload(); // Recarga la página
-      })
-      .catch((error) => {
-        console.error("Error al enviar el correo:", error);
-        alert("Error al enviar el correo.");
-      });
-      };
+      // Enviar el correo con EmailJS
+      await emailjs.send("servicio_7kc7w6j", "plantilla_ymtwuhd", emailParams);
+      console.log("Correo enviado con éxito");
+      alert("Formulario enviado correctamente. Revisa tu correo.");
+      location.reload(); // Recarga la página para limpiar el formulario
+    } catch (error) {
+      console.error("Error al enviar el correo:", error);
+      alert("Error al enviar el correo.");
+    }
+  };
 });
 
 </script>
