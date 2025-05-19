@@ -324,9 +324,8 @@ form.addEventListener('submit', e => {
   })
   .then(res => res.json())
   .then(data => {
-    console.log(data);
     if (data.success) {
-      window.location.href = data.pdfUrl; // Redirigimos a la URL del PDF generado
+      alert('El formulario se envió correctamente. El PDF ha sido enviado por correo.');
     } else {
       alert('Hubo un error: ' + data.error);
     }
@@ -337,9 +336,10 @@ form.addEventListener('submit', e => {
   })
   .finally(() => {
     btnEnviar.disabled = false;
-    btnEnviar.textContent = 'Confirmar y Enviar';
+    btnEnviar.textContent = 'Confirmar';
   });
 });
+;
 
 </script>
 </body>
