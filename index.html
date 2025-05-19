@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
   <title>Formulario Prueba de Entrega Martillo Distribuidor Mayorista SAS</title>
   <style>
     body {
@@ -46,13 +45,13 @@
       font-size: 13px;
       text-align: left;
     }
-      input, canvas, button, video {
+    input, canvas, button, video {
       width: 100%;
       background-color: transparent;
       padding: 10px;
       font-size: 13px;
-        border: none;
-        outline:none;
+      border: none;
+      outline: none;
       box-sizing: border-box;
     }
     canvas, video, img {
@@ -64,7 +63,6 @@
     button {
       background-color: #349800;
       color: white;
-      border: none;
       cursor: pointer;
       border-radius: 6px;
       margin: 10px auto 0;
@@ -93,14 +91,10 @@
       gap: 10px;
       margin-bottom: 20px;
     }
-
     .logo {
       width: 120px;
       height: auto;
       object-fit: contain;
-      border: none;
-      background: none;
-      margin: 0;
     }
   </style>
 </head>
@@ -110,7 +104,7 @@
       <img src="assets/ELMARTILLO2.png" alt="logo" class="logo">
       <h2>Prueba de Entrega</h2>
     </div>    
-      <form id="formulario">
+    <form id="formulario">
       <label>Confirma que tu pedido ha sido entregado:</label>
       <label>Nombre:</label>
       <div class="campo"><input type="text" name="nombre" required /></div>
@@ -137,12 +131,11 @@
       <input type="hidden" name="fechaHora" id="fechaHora" />
 
       <button type="button" id="verResumen"><b>Ver resumen antes de enviar</b></button>
-
       <div class="resumen" id="previewResumen"></div>
-
       <button type="submit" style="display:none;" id="btnEnviar">Confirmar y Enviar</button>
     </form>
   </div>
+
 <script>
   const form = document.getElementById('formulario');
   const video = document.getElementById('video');
@@ -160,18 +153,21 @@
   const fechaHoraInput = document.getElementById('fechaHora');
   let stream;
 
+  let folioGlobal = '';
+  let fechaGlobal = '';
+
   function iniciarCamara() {
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { exact: "environment" } }
-    }).then(s => {
-      stream = s;
-      video.srcObject = stream;
-    }).catch(() => {
-      navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
+      .then(s => {
         stream = s;
         video.srcObject = stream;
+      })
+      .catch(() => {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
+          stream = s;
+          video.srcObject = stream;
+        });
       });
-    });
   }
 
   iniciarCamara();
@@ -246,17 +242,16 @@
       return;
     }
 
-    const ahora = new Date();
-    const fecha = ahora.toLocaleString();
-    const folio = 'FOLIO-' + Math.floor(Math.random() * 1000000);
+    fechaGlobal = new Date().toLocaleString();
+    folioGlobal = 'FOLIO-' + Math.floor(Math.random() * 1000000);
 
-    fechaHoraInput.value = fecha;
-    folioInput.value = folio;
+    fechaHoraInput.value = fechaGlobal;
+    folioInput.value = folioGlobal;
 
     resumenDiv.innerHTML = `
       <h3>Resumen de la entrega</h3>
-      <p><b>Folio:</b> ${folio}</p>
-      <p><b>Fecha:</b> ${fecha}</p>
+      <p><b>Folio:</b> ${folioGlobal}</p>
+      <p><b>Fecha:</b> ${fechaGlobal}</p>
       <p><b>Nombre:</b> ${nombre}</p>
       <p><b>Correo:</b> ${correo}</p>
       <p><b>Teléfono:</b> ${telefono}</p>
@@ -269,8 +264,7 @@
     verResumenBtn.style.display = 'none';
   });
 
-    // Inicializar EmailJS
-  emailjs.init("oJ1ADi8Z2FU6Pw10i");
+  emailjs.init("oJ1ADi8Z2FU6Pw10i"); // Asegúrate que este sea tu Public Key
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -282,45 +276,38 @@
     const telefono = form.telefono.value.trim();
     const foto = fotoInput.value;
     const firma = firmaInput.value;
-    const fecha = new Date().toLocaleString();
-    const folio = 'FOLIO-' + Math.floor(Math.random() * 1000000);
 
-    // Crear PDF
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(14);
-    doc.text(`Folio: ${folio}`, 10, 10);
-    doc.text(`Fecha: ${fecha}`, 10, 20);
+    doc.text(`Folio: ${folioGlobal}`, 10, 10);
+    doc.text(`Fecha: ${fechaGlobal}`, 10, 20);
     doc.text(`Nombre: ${nombre}`, 10, 30);
     doc.text(`Correo: ${correo}`, 10, 40);
     doc.text(`Teléfono: ${telefono}`, 10, 50);
 
-    // Agrega Foto (si hay)
     if (foto) {
       doc.text("Foto:", 10, 60);
       doc.addImage(foto, 'PNG', 10, 65, 60, 40);
     }
 
-    // Firma (si hay)
     if (firma) {
       doc.text("Firma:", 10, 110);
       doc.addImage(firma, 'PNG', 10, 115, 60, 40);
     }
 
-    // Convertir PDF a Blob
     const pdfBlob = doc.output("blob");
     const reader = new FileReader();
     reader.readAsDataURL(pdfBlob);
     reader.onloadend = async function () {
       const base64pdf = reader.result.split(',')[1];
 
-      // Enviar con EmailJS
       const emailParams = {
         to_email: correo,
         from_name: "Prueba de Entrega",
         message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`,
         attachment_base64: base64pdf,
-        filename: `Comprobante_${folio}.pdf`,
+        filename: `Comprobante_${folioGlobal}.pdf`
       };
 
       try {
@@ -339,3 +326,4 @@
 </script>
 </body>
 </html>
+
