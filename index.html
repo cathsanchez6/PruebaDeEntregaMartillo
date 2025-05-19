@@ -268,10 +268,21 @@
     btnEnviar.disabled = true;
     btnEnviar.textContent = 'Enviando...';
 
-    fetch(scriptURL, {
-      method: 'POST',
-      body: new FormData(form)
-    })
+     const formData = {
+    nombre: form.nombre.value,
+    correo: form.correo.value,
+    telefono: form.telefono.value,
+    foto: fotoInput.value,
+    firma: firmaInput.value
+  };
+  
+  fetch(scriptURL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  })
 
     .then(res => res.json())
     .then(data => {
