@@ -152,19 +152,33 @@
   const fechaHoraInput = document.getElementById('fechaHora');
   let stream;
 
-  function iniciarCamara() {
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { exact: "environment" } }
-    }).then(s => {
+function iniciarCamara() {
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { exact: "environment" } }
+  }).then(s => {
+    stream = s;
+    video.srcObject = stream;
+
+    video.addEventListener('loadedmetadata', () => {
+      // Ajustamos el canvas al tamaño real del video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    });
+
+  }).catch(() => {
+    // Si falla el acceso a la cámara trasera, usar la frontal
+    navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
       stream = s;
       video.srcObject = stream;
-    }).catch(() => {
-      navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
-        stream = s;
-        video.srcObject = stream;
+
+      video.addEventListener('loadedmetadata', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
       });
+
     });
-  }
+  });
+}
 
   iniciarCamara();
 
