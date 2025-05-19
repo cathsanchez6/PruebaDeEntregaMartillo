@@ -269,42 +269,8 @@
     verResumenBtn.style.display = 'none';
   });
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    btnEnviar.disabled = true;
-    btnEnviar.textContent = 'Enviando...';
-
-    fetch(scriptURL, {
-      method: 'POST',
-      body: new FormData(form)
-    })
-
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        const a = document.createElement('a');
-        a.href = data.pdfUrl;
-        a.download = 'Prueba_de_Entrega.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        alert("Formulario enviado correctamente.");
-        location.reload();
-      } else {
-        alert("Error al procesar el formulario.");
-        btnEnviar.disabled = false;
-        btnEnviar.textContent = 'Confirmar y Enviar';
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Enviado");
-      btnEnviar.disabled = false;
-      btnEnviar.textContent = 'Confirmar y Enviar';
-    });
-  });
     // Inicializar EmailJS
-  emailjs.init("service_7kc7w6j");
+  emailjs.init("oJ1ADi8Z2FU6Pw10i");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -353,7 +319,7 @@
         to_email: correo,
         from_name: "Prueba de Entrega",
         message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`,
-        attachment: base64pdf,
+        attachment_base64: base64pdf,
         filename: `Comprobante_${folio}.pdf`,
       };
 
