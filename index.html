@@ -304,7 +304,7 @@
     });
   });
     // Inicializar EmailJS
-  emailjs.init("pruebadeentrega1@gmail.com");
+  emailjs.init("service_7kc7w6j");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -358,7 +358,7 @@
       };
 
       try {
-        await emailjs.send("TU_SERVICE_ID", "TU_TEMPLATE_ID", emailParams);
+        await emailjs.send("service_7kc7w6j", "plantilla_ysa7l2s", emailParams);
         alert("Formulario enviado correctamente. Revisa tu correo.");
         location.reload();
       } catch (error) {
