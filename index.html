@@ -324,11 +324,9 @@ form.addEventListener('submit', e => {
   })
   .then(res => res.json())
   .then(data => {
-    if (data.success) {
+    (data.success) {
       alert('El formulario se envió correctamente. El PDF ha sido enviado por correo.');
-    } else {
-      alert('Hubo un error: ' + data.error);
-    }
+    } 
   })
   .catch(err => {
     console.error('Error en la solicitud:', err);
