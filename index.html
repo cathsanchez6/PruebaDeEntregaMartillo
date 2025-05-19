@@ -264,7 +264,7 @@
     verResumenBtn.style.display = 'none';
   });
 
-  emailjs.init("oJ1ADi8Z2FU6Pw10i"); // Asegúrate que este sea tu Public Key
+  emailjs.init("oJ1ADi8Z2FU6Pw10i"); // 
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -315,7 +315,8 @@ form.addEventListener('submit', async (e) => {
     };
 
     try {
-      await emailjs.send("service_7kc7w6j", "plantilla_ysa7l2s", emailParams);
+      console.log(emailParams);
+      await emailjs .send( " servicio_7kc7w6j " , " plantilla_ymtwuhd " ) ;
       alert("Formulario enviado correctamente. Revisa tu correo.");
       location.reload();
     } catch (error) {
