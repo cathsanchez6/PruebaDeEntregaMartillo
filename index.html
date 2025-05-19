@@ -287,41 +287,59 @@ function iniciarCamara() {
     
   });
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    btnEnviar.disabled = true;
-    btnEnviar.textContent = 'Enviando...';
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = 'Enviando...';
 
-    const formData = new FormData(form);
+  // Recolectamos los datos del formulario
+  const nombre = form.nombre.value.trim();
+  const correo = form.correo.value.trim();
+  const telefono = form.telefono.value.trim();
+  const fotoBase64 = fotoInput.value;
+  const firmaBase64 = firmaInput.value;
 
-    fetch(scriptURL, {
-        method: 'POST',
-        body: formData,
-       headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-       body: new URLSearchParams({
-      'nombre': nombre,
-      'correo': correo,
-      'telefono': telefono,
-      'foto': fotoBase64,
-      'firma': firmaBase64
-      })      
-   })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          window.location.href = data.pdfUrl;
-        } else {
-         alert('Hubo un error: ' + data.error);
-        }
-      })
-      .catch(err => {
-        console.error('Error en la solicitud:', error);
-        alert('Ocurrió un error al procesar la solicitud.');
-      });
+  // Verificamos si todo está completo
+  if (!fotoBase64 || !firmaBase64 || !nombre || !correo || !telefono) {
+    alert("Por favor completa todos los campos y asegúrate de haber capturado foto y firma.");
+    return;
+  }
 
+  // Configuramos los datos que vamos a enviar
+  const formData = new URLSearchParams({
+    'nombre': nombre,
+    'correo': correo,
+    'telefono': telefono,
+    'foto': fotoBase64,
+    'firma': firmaBase64
   });
+
+  // Hacemos el envío con fetch
+  fetch(scriptURL, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = data.pdfUrl; // Redirigimos a la URL del PDF generado
+    } else {
+      alert('Hubo un error: ' + data.error);
+    }
+  })
+  .catch(err => {
+    console.error('Error en la solicitud:', err);
+    alert('Ocurrió un error al procesar la solicitud.');
+  })
+  .finally(() => {
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = 'Confirmar y Enviar';
+  });
+});
+
 </script>
 </body>
 </html>
