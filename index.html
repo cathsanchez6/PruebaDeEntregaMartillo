@@ -297,30 +297,28 @@ function iniciarCamara() {
     fetch(scriptURL, {
         method: 'POST',
         body: formData,
-      })
+       headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+       body: new URLSearchParams({
+      'nombre': nombre,
+      'correo': correo,
+      'telefono': telefono,
+      'foto': fotoBase64,
+      'firma': firmaBase64
+      })      
+   })
       .then(res => res.json())
       .then(data => {
-        console.log("Respuesta del servidor:", data); // Verifica el contenido de la respuesta
-        if (data && data.success) {
-          const a = document.createElement('a');
-          a.href = data.pdfUrl;
-          a.download = 'Prueba_de_Entrega.pdf';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          alert("Formulario enviado correctamente.");
-          location.reload();
+        if (data.success) {
+          window.location.href = data.pdfUrl;
         } else {
-          alert("Error al procesar el formulario.");
-          btnEnviar.disabled = false;
-          btnEnviar.textContent = 'Confirmar y Enviar';
+         alert('Hubo un error: ' + data.error);
         }
       })
       .catch(err => {
-        console.error(err);
-        alert("Error al enviar el formulario.");
-        btnEnviar.disabled = false;
-        btnEnviar.textContent = 'Confirmar y Enviar';
+        console.error('Error en la solicitud:', error);
+        alert('Ocurrió un error al procesar la solicitud.');
       });
 
   });
