@@ -176,12 +176,12 @@ function iniciarCamara() {
         canvas.height = video.videoHeight;
       });
 
+    }).catch(() => {
+      alert("No se pudo acceder a la cámara.");
     });
   });
-  .catch(() => {
-  alert("No se pudo acceder a la cámara.");
-});
 }
+
 
   iniciarCamara();
 
@@ -295,34 +295,34 @@ function iniciarCamara() {
     const formData = new FormData(form);
 
     fetch(scriptURL, {
-      method: 'POST',
-      body: formData
-    })
-
-
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        const a = document.createElement('a');
-        a.href = data.pdfUrl;
-        a.download = 'Prueba_de_Entrega.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        alert("Formulario enviado correctamente.");
-        location.reload();
-      } else {
-        alert("Error al procesar el formulario.");
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data); // Verifica el contenido de la respuesta
+        if (data.success) {
+          const a = document.createElement('a');
+          a.href = data.pdfUrl;
+          a.download = 'Prueba_de_Entrega.pdf';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          alert("Formulario enviado correctamente.");
+          location.reload();
+        } else {
+          alert("Error al procesar el formulario.");
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = 'Confirmar y Enviar';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error al enviar el formulario.");
         btnEnviar.disabled = false;
         btnEnviar.textContent = 'Confirmar y Enviar';
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error al enviar el formulario.");
-      btnEnviar.disabled = false;
-      btnEnviar.textContent = 'Confirmar y Enviar';
-    });
+      });
+
   });
 </script>
 </body>
