@@ -137,6 +137,7 @@
   </div>
 
 <script>
+ const scriptURL = 'https://script.google.com/macros/s/AKfycbxRwJkNMiP3RRFRTCX_fk6C5i9nzbzeiD8HuOk8rNxVtD0ZrevKoGLFbZRyfICwxZM4GQ/exec';
   const form = document.getElementById('formulario');
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
@@ -153,30 +154,24 @@
   const fechaHoraInput = document.getElementById('fechaHora');
   let stream;
 
-  let folioGlobal = '';
-  let fechaGlobal = '';
-
   function iniciarCamara() {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
-      .then(s => {
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "environment" } }
+    }).then(s => {
+      stream = s;
+      video.srcObject = stream;
+    }).catch(() => {
+      navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
         stream = s;
         video.srcObject = stream;
-      })
-      .catch(() => {
-        navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
-          stream = s;
-          video.srcObject = stream;
-        });
       });
+    });
   }
 
   iniciarCamara();
 
   capturarBtn.addEventListener('click', () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-
     const dataUrl = canvas.toDataURL('image/png');
     fotoInput.value = dataUrl;
     preview.src = dataUrl;
@@ -245,16 +240,17 @@
       return;
     }
 
-    fechaGlobal = new Date().toLocaleString();
-    folioGlobal = 'FOLIO-' + Math.floor(Math.random() * 1000000);
+    const ahora = new Date();
+    const fecha = ahora.toLocaleString();
+    const folio = 'FOLIO-' + Math.floor(Math.random() * 1000000);
 
-    fechaHoraInput.value = fechaGlobal;
-    folioInput.value = folioGlobal;
+    fechaHoraInput.value = fecha;
+    folioInput.value = folio;
 
     resumenDiv.innerHTML = `
       <h3>Resumen de la entrega</h3>
-      <p><b>Folio:</b> ${folioGlobal}</p>
-      <p><b>Fecha:</b> ${fechaGlobal}</p>
+      <p><b>Folio:</b> ${folio}</p>
+      <p><b>Fecha:</b> ${fecha}</p>
       <p><b>Nombre:</b> ${nombre}</p>
       <p><b>Correo:</b> ${correo}</p>
       <p><b>Teléfono:</b> ${telefono}</p>
@@ -267,73 +263,40 @@
     verResumenBtn.style.display = 'none';
   });
 
-  emailjs.init("oJ1ADi8Z2FU6Pw10i"); // 
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = 'Enviando...';
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  btnEnviar.disabled = true;
-  btnEnviar.textContent = 'Generando PDF...';
+    fetch(scriptURL, {
+      method: 'POST',
+      body: new FormData(form)
+    })
 
-  const nombre = form.nombre.value.trim();
-  const correo = form.correo.value.trim();
-  const telefono = form.telefono.value.trim();
-  const foto = fotoInput.value;
-  const firma = firmaInput.value;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text(`Folio: ${folioGlobal}`, 10, 10);
-  doc.text(`Fecha: ${fechaGlobal}`, 10, 20);
-  doc.text(`Nombre: ${nombre}`, 10, 30);
-  doc.text(`Correo: ${correo}`, 10, 40);
-  doc.text(`Teléfono: ${telefono}`, 10, 50);
-
-  if (foto) {
-    doc.text("Foto:", 10, 60);
-    doc.addImage(foto, 'PNG', 10, 65, 60, 40);
-  }
-
-  if (firma) {
-    doc.text("Firma:", 10, 110);
-    doc.addImage(firma, 'PNG', 10, 115, 60, 40);
-  }
-
-  // DESCARGA LOCAL AUTOMÁTICA
-  doc.save(`Comprobante_${folioGlobal}.pdf`);
-
-  // Convertir PDF a base64 para enviar por email
-  const pdfBlob = doc.output("blob");
-  const reader = new FileReader();
-  reader.readAsDataURL(pdfBlob);
-
-  reader.onloadend = async function () {
-    const base64pdf = reader.result.split(',')[1];
-
-    const emailParams = {
-      to_email: correo, // Email destinatario
-      from_name: "Prueba de Entrega", // Nombre del remitente
-      message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`, // Mensaje
-      attachment_base64: base64pdf, // PDF adjunto en base64
-      filename: `Comprobante_${folioGlobal}.pdf`, // Nombre del archivo
-      fecha: fechaGlobal, // Fecha y hora de la entrega
-      nombre: nombre // Nombre del cliente
-    };
-
-    try {
-      console.log(emailParams);
-      // Enviar el correo con EmailJS
-      await emailjs .send( " servicio_7kc7w6j " , " plantilla_ymtwuhd ", emailParams ) ;
-      console.log("Correo enviado con éxito");
-      alert("Formulario enviado correctamente. Revisa tu correo.");
-      location.reload(); // Recarga la página para limpiar el formulario
-    } catch (error) {
-      console.error("Error al enviar el correo:", error);
-      alert("Error al enviar el correo.");
-    }
-  };
-});
-
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const a = document.createElement('a');
+        a.href = data.pdfUrl;
+        a.download = 'Prueba_de_Entrega.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        alert("Formulario enviado correctamente.");
+        location.reload();
+      } else {
+        alert("Error al procesar el formulario.");
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = 'Confirmar y Enviar';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Enviado");
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Confirmar y Enviar';
+    });
+  });
 </script>
 </body>
 </html>
