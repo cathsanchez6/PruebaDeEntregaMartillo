@@ -307,26 +307,29 @@ form.addEventListener('submit', async (e) => {
     const base64pdf = reader.result.split(',')[1];
 
     const emailParams = {
-      to_email: correo,
-      from_name: "Prueba de Entrega",
-      message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`,
-      attachment_base64: base64pdf,
-      filename: `Comprobante_${folioGlobal}.pdf`
+      to_email: correo, // Email destinatario
+      from_name: "Prueba de Entrega", // Nombre del remitente
+      message: `Hola ${nombre}, adjuntamos tu comprobante de entrega.`, // Mensaje
+      attachment_base64: base64pdf, // PDF adjunto en base64
+      filename: `Comprobante_${folioGlobal}.pdf`, // Nombre del archivo
+      fecha: fechaGlobal, // Fecha y hora de la entrega
+      nombre: nombre // Nombre del cliente
     };
+
 
     try {
       console.log(emailParams);
-      await emailjs .send( "servicio_7kc7w6j" , "plantilla_ymtwuhd" ) ;
-      alert("Formulario enviado correctamente. Revisa tu correo.");
-      location.reload();
-    } catch (error) {
-      console.error("Error al enviar el correo", error);
-      alert("Error al enviar el correo.");
-    } finally {
-      btnEnviar.disabled = false;
-      btnEnviar.textContent = 'Confirmar y Enviar';
-    }
-  };
+      emailjs.send("servicio_7kc7w6j", "plantilla_ymtwuhd", emailParams)
+      .then((response) => {
+        console.log("Correo enviado con éxito:", response);
+        alert("Formulario enviado correctamente. Revisa tu correo.");
+        location.reload(); // Recarga la página
+      })
+      .catch((error) => {
+        console.error("Error al enviar el correo:", error);
+        alert("Error al enviar el correo.");
+      });
+      };
 });
 
 </script>
