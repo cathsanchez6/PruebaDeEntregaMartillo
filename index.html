@@ -135,7 +135,7 @@
   </div>
 
 <script>
- const scriptURL = 'https://script.google.com/macros/s/AKfycbwUb0r7dDOTuzBLxXy6AvY0eEe-vG--TjTLBMt6_BGaxRe3zQnf-cDr9SwsVVKC7nG9Ig/exec';
+ const scriptURL = 'https://script.google.com/macros/s/AKfycbwFnWNXe0VmSutgq7U4n7wd9wd3xk4ZUzTj5B5Od22bDji66T3kcDXxhmTYgQTmkQ0wqw/exec';
   const form = document.getElementById('formulario');
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
@@ -280,21 +280,13 @@ function iniciarCamara() {
     btnEnviar.disabled = true;
     btnEnviar.textContent = 'Enviando...';
 
-     const formData = {
-    nombre: form.nombre.value,
-    correo: form.correo.value,
-    telefono: form.telefono.value,
-    foto: fotoInput.value,
-    firma: firmaInput.value
-  };
-  
-  fetch(scriptURL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(formData)
-  })
+    const formData = new FormData(form);
+
+    fetch(scriptURL, {
+      method: 'POST',
+      body: formData
+    })
+
 
     .then(res => res.json())
     .then(data => {
