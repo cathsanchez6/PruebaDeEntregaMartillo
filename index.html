@@ -275,16 +275,7 @@ function iniciarCamara() {
 
     resumenDiv.style.display = 'block';
     btnEnviar.style.display = 'block';
-    verResumenBtn.style.display = 'none';
-    
-    const btnRegresar = document.createElement('button');
-      btnRegresar.textContent = 'Regresar al Formulario';
-      btnRegresar.onclick = function() {
-        resumenDiv.style.display = 'none';
-        verResumenBtn.style.display = 'block';
-      };
-      resumenDiv.appendChild(btnRegresar);
-    
+    verResumenBtn.style.display = 'none';   
   });
 
 form.addEventListener('submit', e => {
